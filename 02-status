@@ -1,0 +1,18 @@
+#!/bin/bash
+
+source /etc/update-motd.d/colors.txt
+
+echo -e " ${TITLE_COLOR}Last login..........:${NC} ${TEXT_COLOR}$(last | head -1 | cut -c 1-9 | xargs)${DEFAULT_COLOR} at ${TEXT_COLOR}$(last | head -1 | cut -c 40-55 | xargs)${DEFAULT_COLOR} from ${TEXT_COLOR}$(last | head -1 | cut -c 23-39 | xargs)${NC}"
+echo -e " ${TITLE_COLOR}Uptime..............:${NC} ${TEXT_COLOR}$(uptime -p | sed 's/^up.//')${NC}"
+echo -e " ${TITLE_COLOR}Load Averages.......:${DEFAULT_COLOR} 1 min: ${TEXT_COLOR}$(cat /proc/loadavg | cut -f1 -d' ')%${DEFAULT_COLOR} | 5 mins: ${TEXT_COLOR}$(cat /proc/loadavg | cut -f2 -d' ')%${DEFAULT_COLOR} | 15 mins: ${TEXT_COLOR}$(cat /proc/loadavg | cut -f3 -d' ')%${NC}"
+echo -e " ${TITLE_COLOR}Memory..............:${DEFAULT_COLOR} Used: ${TEXT_COLOR}$(free -m | grep Mem: | xargs | cut -f3 -d' ')${DEFAULT_COLOR} MB | Free: ${TEXT_COLOR}$(free -m | grep Mem: | xargs | cut -f7 -d' ')${DEFAULT_COLOR} MB | Total: ${TEXT_COLOR}$(free -m | grep Mem: | xargs | cut -f2 -d' ')${DEFAULT_COLOR} MB"
+
+AVAIL="$(df --output=avail -h / | tail -1 | xargs)"
+USED="$(df --output=used -h / | tail -1 | xargs)"
+TOTAL="$(df --output=size -h / | tail -1 | xargs)"
+
+echo -e " ${TITLE_COLOR}Disk................:${NC} Used: ${TEXT_COLOR}$(echo $USED | sed s/[A-Z]*//g)${NC} $(echo $USED | sed s/[0-9]*//g)B | Free: ${TEXT_COLOR}$(echo $AVAIL | sed s/[A-Z]*//g)${NC} $(echo $AVAIL | sed s/[0-9]*//g)B | Total: ${TEXT_COLOR}$(echo $TOTAL | sed s/[A-Z]*//g)${NC} $(echo $TOTAL | sed s/[0-9]*//g)B"
+echo -e " ${TITLE_COLOR}SSH Logins..........:${DEFAULT_COLOR} ${TEXT_COLOR}$(who | wc -l)${DEFAULT_COLOR} users logged in"
+echo -e " ${TITLE_COLOR}Processes...........:${NC} ${TEXT_COLOR}$(ps -ef | wc -l)${DEFAULT_COLOR} running processes${NC}"
+
+echo ""
