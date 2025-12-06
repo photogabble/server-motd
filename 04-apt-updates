@@ -1,0 +1,24 @@
+#!/bin/bash
+
+source /etc/update-motd.d/colors.txt
+
+# Check for updates (exclude the header line)
+update_count=$(apt list --upgradable 2>/dev/null | tail -n +2 | wc -l || echo "0")
+
+# Check for security updates
+security_count=$(apt list --upgradable 2>/dev/null | grep -i "security\|debian-security" | wc -l || echo "0")
+
+# Format the output
+line="\n Package Updates....: "
+
+if [[ "$update_count" == "0" ]]; then
+    line+="\e[32m● System up to date\e[0m"
+else
+    line+="\e[31m▲ $update_count updates available\e[0m"
+
+    if [[ "$security_count" -gt "0" ]]; then
+        line+=" \e[91m($security_count security)\e[0m"
+    fi
+fi
+
+echo -e "$line"
