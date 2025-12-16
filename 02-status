@@ -2,7 +2,28 @@
 
 source /etc/update-motd.d/colors.txt
 
-echo -e " ${TITLE_COLOR}Last login..........:${NC} ${TEXT_COLOR}$(last | head -1 | cut -c 1-9 | xargs)${DEFAULT_COLOR} at ${TEXT_COLOR}$(last | head -1 | cut -c 40-55 | xargs)${DEFAULT_COLOR} from ${TEXT_COLOR}$(last | head -1 | cut -c 23-39 | xargs)${NC}"
+#
+get_last_login_pretty() {
+    local jline ts ip user pretty
+    jline="$(journalctl -u ssh --no-pager -r -o short-iso 2>/dev/null | grep -m1 'Accepted ')" || jline=""
+
+  if [ -z "$jline" ]; then
+    echo "N/A"
+    return 0
+  fi
+
+  # short-iso begins with: YYYY-MM-DD HH:MM:SS
+  ts="$(echo "$jline" | awk '{print $1}')"
+  user="$(echo "$jline" | sed -n 's/.*Accepted .* for \([^ ]*\) from .*/\1/p')"
+  ip="$(echo "$jline" | sed -n 's/.* from \([^ ]*\) .*/\1/p')"
+
+  pretty="$(date -d "$ts" '+%a %b %-d %H:%M' 2>/dev/null)"
+  [ -n "$pretty" ] || pretty="$ts"
+
+  echo "${TEXT_COLOR}${user:-?}${NC} at ${TEXT_COLOR}${pretty}${NC} from ${TEXT_COLOR}${ip:-?}${NC}"
+}
+
+echo -e " ${TITLE_COLOR}Last login..........:${NC} $(get_last_login_pretty)"
 echo -e " ${TITLE_COLOR}Uptime..............:${NC} ${TEXT_COLOR}$(uptime -p | sed 's/^up.//')${NC}"
 echo -e " ${TITLE_COLOR}Load Averages.......:${DEFAULT_COLOR} 1 min: ${TEXT_COLOR}$(cat /proc/loadavg | cut -f1 -d' ')%${DEFAULT_COLOR} | 5 mins: ${TEXT_COLOR}$(cat /proc/loadavg | cut -f2 -d' ')%${DEFAULT_COLOR} | 15 mins: ${TEXT_COLOR}$(cat /proc/loadavg | cut -f3 -d' ')%${NC}"
 echo -e " ${TITLE_COLOR}Memory..............:${DEFAULT_COLOR} Used: ${TEXT_COLOR}$(free -m | grep Mem: | xargs | cut -f3 -d' ')${DEFAULT_COLOR} MB | Free: ${TEXT_COLOR}$(free -m | grep Mem: | xargs | cut -f7 -d' ')${DEFAULT_COLOR} MB | Total: ${TEXT_COLOR}$(free -m | grep Mem: | xargs | cut -f2 -d' ')${DEFAULT_COLOR} MB"
