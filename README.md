@@ -1,11 +1,15 @@
 # Debian Server MOTD Files
 
-To install copy these files into your /etc/update-motd.d path and `chmod +x` the number prefixed files.
+To install these files on Debian 13 (trixie) run the following command from the root of this project:
+```bash
+sudo install -o root -g root -m 0755 00-header 01-banner 02-status 03-services 04-apt-updates /etc/update-motd.d/ \
+  && sudo install -o root -g root -m 0644 colors.txt /etc/update-motd.d/
+```
 
 When ran these files will result in output similar to:
 
 ```
-Welcome to Debian GNU/Linux 11 (bullseye) (GNU/Linux 5.10.0-23-amd64 x86_64)
+Welcome to Debian GNU/Linux 13 (trixie) (GNU/Linux 6.12.48+deb13-cloud-amd64 x86_64)
 
   ___            ___
  /   \          /   \
